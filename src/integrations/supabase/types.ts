@@ -14,7 +14,236 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      competitor_data: {
+        Row: {
+          competitor_name: string
+          created_at: string
+          features: Json | null
+          id: string
+          last_updated: string
+          price: number | null
+          query_id: string
+          rating: number | null
+          url: string | null
+        }
+        Insert: {
+          competitor_name: string
+          created_at?: string
+          features?: Json | null
+          id?: string
+          last_updated?: string
+          price?: number | null
+          query_id: string
+          rating?: number | null
+          url?: string | null
+        }
+        Update: {
+          competitor_name?: string
+          created_at?: string
+          features?: Json | null
+          id?: string
+          last_updated?: string
+          price?: number | null
+          query_id?: string
+          rating?: number | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_data_query_id_fkey"
+            columns: ["query_id"]
+            isOneToOne: false
+            referencedRelation: "research_queries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          company: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          role: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          company?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          company?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      research_queries: {
+        Row: {
+          created_at: string
+          id: string
+          query_text: string
+          query_type: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          query_text: string
+          query_type: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          query_text?: string
+          query_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      research_reports: {
+        Row: {
+          created_at: string
+          id: string
+          insights: Json | null
+          pdf_url: string | null
+          query_id: string
+          recommendations: Json | null
+          summary: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          insights?: Json | null
+          pdf_url?: string | null
+          query_id: string
+          recommendations?: Json | null
+          summary?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          insights?: Json | null
+          pdf_url?: string | null
+          query_id?: string
+          recommendations?: Json | null
+          summary?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_reports_query_id_fkey"
+            columns: ["query_id"]
+            isOneToOne: false
+            referencedRelation: "research_queries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sentiment_analysis: {
+        Row: {
+          confidence: number
+          content: string
+          created_at: string
+          id: string
+          query_id: string
+          sentiment: string
+          source: string
+          topics: string[] | null
+        }
+        Insert: {
+          confidence?: number
+          content: string
+          created_at?: string
+          id?: string
+          query_id: string
+          sentiment: string
+          source: string
+          topics?: string[] | null
+        }
+        Update: {
+          confidence?: number
+          content?: string
+          created_at?: string
+          id?: string
+          query_id?: string
+          sentiment?: string
+          source?: string
+          topics?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sentiment_analysis_query_id_fkey"
+            columns: ["query_id"]
+            isOneToOne: false
+            referencedRelation: "research_queries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trend_data: {
+        Row: {
+          created_at: string
+          data_points: Json | null
+          id: string
+          keyword: string
+          query_id: string
+          search_volume: number | null
+          time_period: string
+          trend_direction: string | null
+        }
+        Insert: {
+          created_at?: string
+          data_points?: Json | null
+          id?: string
+          keyword: string
+          query_id: string
+          search_volume?: number | null
+          time_period: string
+          trend_direction?: string | null
+        }
+        Update: {
+          created_at?: string
+          data_points?: Json | null
+          id?: string
+          keyword?: string
+          query_id?: string
+          search_volume?: number | null
+          time_period?: string
+          trend_direction?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trend_data_query_id_fkey"
+            columns: ["query_id"]
+            isOneToOne: false
+            referencedRelation: "research_queries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
