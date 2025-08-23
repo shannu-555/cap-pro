@@ -43,26 +43,49 @@ export function SearchForm({ onQuerySubmitted }: SearchFormProps) {
     setLoading(true);
     
     try {
-      const { data, error } = await supabase
-        .from('research_queries')
-        .insert({
-          user_id: user.id,
-          query_text: query.trim(),
-          query_type: queryType,
-          status: 'pending'
-        })
-        .select()
-        .single();
+        // Create the research query record
+        const { data, error } = await supabase
+          .from('research_queries')
+          .insert({
+            user_id: user.id,
+            query_text: query.trim(),
+            query_type: queryType,
+            status: 'pending'
+          })
+          .select()
+          .single();
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Research Started",
-        description: `Analyzing ${queryType}: "${query}". This may take a few moments.`,
-      });
+        toast({
+          title: "Research Started",
+          description: `Analyzing ${queryType}: "${query}". Our AI agents are now working on your request.`,
+        });
 
-      onQuerySubmitted(data.id);
-      setQuery('');
+        onQuerySubmitted(data.id);
+        setQuery('');
+
+        // Trigger the research controller to start all agents
+        try {
+          const { error: controllerError } = await supabase.functions.invoke('research-controller', {
+            body: { queryId: data.id }
+          });
+
+          if (controllerError) {
+            console.error('Error triggering research controller:', controllerError);
+            toast({
+              title: "Processing Started",
+              description: "Research query created, agents will begin processing shortly.",
+            });
+          }
+        } catch (controllerError) {
+          console.error('Failed to trigger research controller:', controllerError);
+          toast({
+            title: "Processing Delayed",
+            description: "Query saved successfully. Processing may take longer than usual.",
+            variant: "destructive",
+          });
+        }
     } catch (error: any) {
       console.error('Error creating research query:', error);
       toast({

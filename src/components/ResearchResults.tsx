@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Loader2, RefreshCw, FileText, Calendar, Target } from 'lucide-react';
+import { Loader2, RefreshCw, FileText, Calendar, Target, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -96,7 +96,7 @@ export function ResearchResults({ queryId }: ResearchResultsProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-success/10 text-success border-success/20';
-      case 'processing': return 'bg-warning/10 text-warning border-warning/20';
+      case 'processing': return 'bg-warning/10 text-warning border-warning/20 animate-pulse';
       case 'failed': return 'bg-destructive/10 text-destructive border-destructive/20';
       default: return 'bg-muted text-muted-foreground border-border';
     }
@@ -119,7 +119,7 @@ export function ResearchResults({ queryId }: ResearchResultsProps) {
               <h3 className="text-lg font-semibold">Initializing AI Agents</h3>
               <p className="text-muted-foreground">Our intelligent agents are analyzing your query...</p>
             </div>
-            <Progress value={33} className="w-64 mx-auto animate-pulse-glow" />
+            <Progress value={33} className="w-64 mx-auto" />
           </div>
         </CardContent>
       </Card>
@@ -131,6 +131,35 @@ export function ResearchResults({ queryId }: ResearchResultsProps) {
       <Card>
         <CardContent className="py-8 text-center">
           <p className="text-muted-foreground">Query not found</p>
+          <Button 
+            onClick={fetchResearchData} 
+            className="mt-4"
+            variant="outline"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Retry
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show failed state with retry option
+  if (query.status === 'failed') {
+    return (
+      <Card className="glass-effect border-destructive/20 animate-slide-up">
+        <CardContent className="py-12 text-center space-y-4">
+          <div className="text-destructive">
+            <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold">Research Failed</h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              There was an error processing your research query. Please try again.
+            </p>
+          </div>
+          <Button onClick={fetchResearchData} variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Retry Research
+          </Button>
         </CardContent>
       </Card>
     );

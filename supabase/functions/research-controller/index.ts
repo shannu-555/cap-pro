@@ -29,14 +29,19 @@ serve(async (req) => {
       .single();
 
     if (queryError || !query) {
+      console.error('Query not found:', queryError);
       throw new Error('Query not found');
     }
+
+    console.log('Found query:', query.query_text, query.query_type);
 
     // Update status to processing
     await supabase
       .from('research_queries')
       .update({ status: 'processing' })
       .eq('id', queryId);
+
+    console.log('Updated status to processing');
 
     // Trigger all agents in parallel
     const agentPromises = [
@@ -51,16 +56,41 @@ serve(async (req) => {
       })
     ];
 
+    console.log('Triggering agents...');
+
     // Wait for all agents to complete
     const agentResults = await Promise.allSettled(agentPromises);
     console.log('Agent results:', agentResults);
 
-    // Generate insights after all agents complete
-    await supabase.functions.invoke('insight-agent', {
-      body: { queryId, queryText: query.query_text, queryType: query.query_type }
-    });
+    // Check if any agent failed
+    const failedAgents = agentResults.filter(result => result.status === 'rejected');
+    if (failedAgents.length > 0) {
+      console.error('Some agents failed:', failedAgents);
+    }
 
-    // Update status to completed
+    // Generate insights after all agents complete (even if some failed)
+    try {
+      console.log('Triggering insight agent...');
+      const insightResult = await supabase.functions.invoke('insight-agent', {
+        body: { queryId, queryText: query.query_text, queryType: query.query_type }
+      });
+      console.log('Insight agent result:', insightResult);
+
+      // Auto-generate PDF report after insights are ready
+      try {
+        console.log('Auto-generating PDF report...');
+        const pdfResult = await supabase.functions.invoke('generate-pdf-report', {
+          body: { queryId }
+        });
+        console.log('PDF generation result:', pdfResult);
+      } catch (pdfError) {
+        console.error('PDF auto-generation failed:', pdfError);
+      }
+    } catch (insightError) {
+      console.error('Insight agent failed:', insightError);
+    }
+
+    // Update status to completed (even if some agents failed)
     await supabase
       .from('research_queries')
       .update({ status: 'completed' })
@@ -68,12 +98,36 @@ serve(async (req) => {
 
     console.log('Research processing completed for query:', queryId);
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      failedAgents: failedAgents.length,
+      totalAgents: agentResults.length 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
     console.error('Error in research-controller:', error);
+    
+    // Try to update the query status to failed
+    try {
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      );
+      
+      const { queryId } = await req.json().catch(() => ({}));
+      
+      if (queryId) {
+        await supabase
+          .from('research_queries')
+          .update({ status: 'failed' })
+          .eq('id', queryId);
+      }
+    } catch (updateError) {
+      console.error('Failed to update query status:', updateError);
+    }
+    
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
