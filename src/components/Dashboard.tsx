@@ -3,13 +3,18 @@ import { useAuth } from '@/hooks/useAuth';
 import { SearchForm } from '@/components/SearchForm';
 import { ResearchResults } from '@/components/ResearchResults';
 import { RecentQueries } from '@/components/RecentQueries';
+import { AlertsSystem } from '@/components/AlertsSystem';
+import { ComparisonDashboard } from '@/components/ComparisonDashboard';
+import { VoiceAssistant } from '@/components/VoiceAssistant';
 import { Button } from '@/components/ui/button';
-import { LogOut, User } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LogOut, User, Search, BarChart3, MessageSquare } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export function Dashboard() {
   const { user, signOut } = useAuth();
   const [currentQueryId, setCurrentQueryId] = useState<string | null>(null);
+  const [showComparison, setShowComparison] = useState(false);
   const { toast } = useToast();
 
   const handleSignOut = async () => {
@@ -36,6 +41,9 @@ export function Dashboard() {
             Market Research AI
           </h1>
           <div className="flex items-center gap-4">
+            <div className="relative">
+              <AlertsSystem queryId={currentQueryId || undefined} />
+            </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <User className="h-4 w-4" />
               {user?.email}
@@ -49,13 +57,43 @@ export function Dashboard() {
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
-        <SearchForm onQuerySubmitted={setCurrentQueryId} />
-        
-        {currentQueryId && (
-          <ResearchResults queryId={currentQueryId} />
-        )}
-        
-        <RecentQueries onQuerySelected={setCurrentQueryId} />
+        <Tabs defaultValue="research" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="research" className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              Research
+            </TabsTrigger>
+            <TabsTrigger value="comparison" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Comparison
+            </TabsTrigger>
+            <TabsTrigger value="assistant" className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              AI Assistant
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="research" className="space-y-8">
+            <SearchForm onQuerySubmitted={setCurrentQueryId} />
+            
+            {currentQueryId && (
+              <ResearchResults queryId={currentQueryId} />
+            )}
+            
+            <RecentQueries onQuerySelected={setCurrentQueryId} />
+          </TabsContent>
+
+          <TabsContent value="comparison">
+            <ComparisonDashboard />
+          </TabsContent>
+
+          <TabsContent value="assistant">
+            <VoiceAssistant 
+              onQueryGenerated={setCurrentQueryId}
+              onComparisonRequested={() => setShowComparison(true)}
+            />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
