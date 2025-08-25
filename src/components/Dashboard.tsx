@@ -35,7 +35,7 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card/50 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b bg-card/50 backdrop-blur-xl sticky top-0 z-50 shadow-soft">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Market Research AI
@@ -44,11 +44,11 @@ export function Dashboard() {
             <div className="relative">
               <AlertsSystem queryId={currentQueryId || undefined} />
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 px-3 py-1 rounded-full">
               <User className="h-4 w-4" />
               {user?.email}
             </div>
-            <Button variant="outline" size="sm" onClick={handleSignOut} className="hover:shadow-soft transition-smooth">
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="btn-professional hover:shadow-soft transition-smooth">
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>
@@ -58,16 +58,16 @@ export function Dashboard() {
 
       <main className="container mx-auto px-4 py-8 space-y-8">
         <Tabs defaultValue="research" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="research" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-3 glass-effect">
+            <TabsTrigger value="research" className="flex items-center gap-2 transition-smooth">
               <Search className="h-4 w-4" />
               Research
             </TabsTrigger>
-            <TabsTrigger value="comparison" className="flex items-center gap-2">
+            <TabsTrigger value="comparison" className="flex items-center gap-2 transition-smooth">
               <BarChart3 className="h-4 w-4" />
               Comparison
             </TabsTrigger>
-            <TabsTrigger value="assistant" className="flex items-center gap-2">
+            <TabsTrigger value="assistant" className="flex items-center gap-2 transition-smooth">
               <MessageSquare className="h-4 w-4" />
               AI Assistant
             </TabsTrigger>

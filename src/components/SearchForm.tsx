@@ -99,10 +99,10 @@ export function SearchForm({ onQuerySubmitted }: SearchFormProps) {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full max-w-2xl mx-auto professional-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Search className="h-5 w-5" />
+          <Search className="h-5 w-5 text-primary" />
           AI Market Research
         </CardTitle>
       </CardHeader>
@@ -110,7 +110,7 @@ export function SearchForm({ onQuerySubmitted }: SearchFormProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex gap-2">
             <Select value={queryType} onValueChange={(value: 'product' | 'company') => setQueryType(value)}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-32 glass-effect">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -122,10 +122,14 @@ export function SearchForm({ onQuerySubmitted }: SearchFormProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={`Enter ${queryType} name to research...`}
-              className="flex-1"
+              className="flex-1 glass-effect"
               disabled={loading}
             />
-            <Button type="submit" disabled={loading || !query.trim()}>
+            <Button 
+              type="submit" 
+              disabled={loading || !query.trim()}
+              className="btn-professional px-6"
+            >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (

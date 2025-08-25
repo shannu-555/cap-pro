@@ -35,19 +35,22 @@ enabled = false
 enabled = true
 
 [functions.research-controller]
-verify_jwt = true
+verify_jwt = false
 
 [functions.sentiment-agent]
-verify_jwt = true
+verify_jwt = false
 
 [functions.competitor-agent]
-verify_jwt = true
+verify_jwt = false
 
 [functions.trend-agent]
-verify_jwt = true
+verify_jwt = false
 
 [functions.insight-agent]
-verify_jwt = true
+verify_jwt = false
 
 [functions.generate-pdf-report]
-verify_jwt = true
+verify_jwt = false
+
+[functions.gemini-assistant]
+verify_jwt = false

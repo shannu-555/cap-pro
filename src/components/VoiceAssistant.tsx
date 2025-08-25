@@ -138,46 +138,57 @@ export function VoiceAssistant({ onQueryGenerated, onComparisonRequested }: Voic
   };
 
   const processNaturalLanguageQuery = async (query: string): Promise<Message> => {
-    const lowerQuery = query.toLowerCase();
-    
-    // Pattern matching for different types of queries
-    if (lowerQuery.includes('sentiment') && lowerQuery.includes('trend')) {
+    try {
+      // Call the Gemini AI assistant
+      const { data, error } = await supabase.functions.invoke('gemini-assistant', {
+        body: { 
+          message: query,
+          userId: 'user-' + Date.now() // Simple user ID for now
+        }
+      });
+
+      if (error) {
+        console.error('Gemini assistant error:', error);
+        // Fallback to a helpful default response
+        return {
+          id: Date.now().toString(),
+          type: 'assistant',
+          content: `I'm here to help with market research analysis. Based on your query "${query}", I can assist with:\n\n🔍 Sentiment analysis and trend detection\n📊 Competitor pricing and feature comparisons\n📈 Market insights and recommendations\n📑 PDF report generation\n\nWhat specific analysis would you like me to perform?`,
+          timestamp: new Date()
+        };
+      }
+
+      const responseText = data?.response || data?.fallback || 
+        `I can help analyze "${query}" for you. What specific market research would you like me to perform?`;
+
+      // Determine if we should trigger any actions based on the query
+      let action: 'generate_report' | 'show_comparison' | 'show_trends' | undefined;
+      const lowerQuery = query.toLowerCase();
+      
+      if (lowerQuery.includes('competitor') && (lowerQuery.includes('report') || lowerQuery.includes('comparison'))) {
+        action = 'show_comparison';
+      } else if (lowerQuery.includes('sentiment') && lowerQuery.includes('trend')) {
+        action = 'show_trends';
+      } else if (lowerQuery.includes('report') || lowerQuery.includes('pdf')) {
+        action = 'generate_report';
+      }
+
       return {
         id: Date.now().toString(),
         type: 'assistant',
-        content: `I'll show you sentiment trends analysis. Based on recent data, here are the key insights:\n\n📈 iPhone sentiment has increased by 12% this quarter\n😊 Positive mentions up 25% (mainly about camera quality)\n😔 Negative feedback down 8% (battery life improvements noted)\n\nWould you like me to generate a detailed report or show competitor comparisons?`,
+        content: responseText,
         timestamp: new Date(),
-        action: 'show_trends'
+        action
       };
-    }
-    
-    if (lowerQuery.includes('competitor') && (lowerQuery.includes('report') || lowerQuery.includes('comparison'))) {
+    } catch (error) {
+      console.error('Error processing query:', error);
       return {
         id: Date.now().toString(),
         type: 'assistant',
-        content: `I'll generate a competitor analysis report comparing pricing and features:\n\n🏢 Amazon: $899 (4.3★) - Strong logistics, competitive pricing\n🏢 Flipkart: $849 (4.1★) - Local market advantage, festival offers\n📊 Key differences: Amazon leads in customer service, Flipkart in regional pricing\n\nShall I create a comprehensive PDF report or open the interactive comparison dashboard?`,
-        timestamp: new Date(),
-        action: 'show_comparison'
+        content: `I'm experiencing some technical difficulties, but I'm still here to help! You can ask me about:\n\n• Market sentiment analysis\n• Competitor research\n• Trend analysis\n• Report generation\n\nWhat would you like to explore?`,
+        timestamp: new Date()
       };
     }
-    
-    if (lowerQuery.includes('price') && lowerQuery.includes('drop')) {
-      return {
-        id: Date.now().toString(),
-        type: 'assistant',
-        content: `I recommend the following actions for the price drop scenario:\n\n💡 Launch bundle discounts (15-20% off accessories)\n📧 Create urgency with limited-time offers\n📱 Highlight unique features competitors lack\n🎯 Target price-sensitive customer segments\n\nWould you like me to run a "What-if Analysis" to predict market response?`,
-        timestamp: new Date(),
-        action: 'generate_report'
-      };
-    }
-    
-    // Default intelligent response
-    return {
-      id: Date.now().toString(),
-      type: 'assistant',
-      content: `I understand you're asking about "${query}". Let me analyze this for you:\n\n🔍 I can help you with:\n• Market sentiment analysis\n• Competitor pricing and features\n• Trend predictions and insights\n• Strategic recommendations\n\nWhat specific aspect would you like me to focus on?`,
-      timestamp: new Date()
-    };
   };
 
   const handleSendMessage = async (text?: string) => {
@@ -239,12 +250,12 @@ export function VoiceAssistant({ onQueryGenerated, onComparisonRequested }: Voic
   };
 
   return (
-    <Card className="glass-effect border-primary/20 animate-slide-up h-96">
+    <Card className="professional-card border-primary/20 animate-slide-up h-96">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-primary" />
           AI Research Assistant
-          <Badge variant="outline" className="ml-auto">
+          <Badge variant="outline" className="ml-auto bg-success/10 text-success border-success/20">
             Voice Enabled
           </Badge>
         </CardTitle>
@@ -346,7 +357,7 @@ export function VoiceAssistant({ onQueryGenerated, onComparisonRequested }: Voic
             <Button 
               onClick={() => handleSendMessage()} 
               disabled={!inputText.trim() || isProcessing}
-              className="hover:shadow-soft transition-smooth"
+              className="btn-professional hover:shadow-soft transition-smooth"
             >
               <Send className="h-4 w-4" />
             </Button>
