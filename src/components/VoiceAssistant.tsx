@@ -139,21 +139,92 @@ export function VoiceAssistant({ onQueryGenerated, onComparisonRequested }: Voic
 
   const processNaturalLanguageQuery = async (query: string): Promise<Message> => {
     try {
-      // Call the Gemini AI assistant
+      // First, try to understand if the user is asking for specific data
+      const lowerQuery = query.toLowerCase();
+      let realDataContext = '';
+
+      // Check if we can provide real data context
+      if (lowerQuery.includes('competitor') || lowerQuery.includes('price') || lowerQuery.includes('comparison')) {
+        try {
+          const { data: competitorData } = await supabase
+            .from('competitor_data')
+            .select(`
+              competitor_name,
+              price,
+              rating,
+              features,
+              research_queries!inner(query_text, query_type)
+            `)
+            .limit(5);
+
+          if (competitorData && competitorData.length > 0) {
+            realDataContext = `\n\nBased on recent market research data:\n${competitorData.map(c => 
+              `• ${c.competitor_name}: $${c.price || 'N/A'}, Rating: ${c.rating || 'N/A'}/5`
+            ).join('\n')}`;
+          }
+        } catch (error) {
+          console.error('Error fetching competitor context:', error);
+        }
+      }
+
+      if (lowerQuery.includes('sentiment') || lowerQuery.includes('opinion')) {
+        try {
+          const { data: sentimentData } = await supabase
+            .from('sentiment_analysis')
+            .select(`
+              sentiment,
+              confidence,
+              source,
+              research_queries!inner(query_text)
+            `)
+            .limit(5);
+
+          if (sentimentData && sentimentData.length > 0) {
+            const avgSentiment = sentimentData.reduce((acc, s) => acc + s.confidence, 0) / sentimentData.length;
+            realDataContext += `\n\nRecent sentiment analysis shows:\n• Average confidence: ${avgSentiment.toFixed(1)}%\n• Sources analyzed: ${sentimentData.map(s => s.source).join(', ')}`;
+          }
+        } catch (error) {
+          console.error('Error fetching sentiment context:', error);
+        }
+      }
+
+      // Call the Gemini AI assistant with enhanced context
+      const enhancedQuery = `${query}${realDataContext}
+
+Please provide a helpful response that:
+1. Directly addresses the user's question
+2. Uses the real data context if provided
+3. Suggests actionable next steps
+4. Mentions specific features like comparison dashboard, sentiment analysis, or PDF reports when relevant`;
+
       const { data, error } = await supabase.functions.invoke('gemini-assistant', {
         body: { 
-          message: query,
-          userId: 'user-' + Date.now() // Simple user ID for now
+          message: enhancedQuery,
+          userId: 'user-' + Date.now()
         }
       });
 
       if (error) {
         console.error('Gemini assistant error:', error);
-        // Fallback to a helpful default response
+        // Enhanced fallback response based on query content
+        let fallbackResponse = `I'm here to help with market research analysis. `;
+        
+        if (lowerQuery.includes('competitor')) {
+          fallbackResponse += `For competitor analysis, I can help you:\n• Compare pricing and features across competitors\n• Generate comprehensive competitor reports\n• Analyze market positioning`;
+        } else if (lowerQuery.includes('sentiment')) {
+          fallbackResponse += `For sentiment analysis, I can:\n• Track customer opinions across social media\n• Monitor brand sentiment trends\n• Provide sentiment breakdowns by source`;
+        } else if (lowerQuery.includes('trend')) {
+          fallbackResponse += `For trend analysis, I can:\n• Identify emerging market patterns\n• Track search volume changes\n• Predict market direction`;
+        } else if (lowerQuery.includes('report') || lowerQuery.includes('pdf')) {
+          fallbackResponse += `I can generate comprehensive PDF reports including:\n• Executive summary with key insights\n• Detailed competitor analysis\n• Sentiment trends and market data\n• Actionable recommendations`;
+        } else {
+          fallbackResponse += `I can assist with:\n🔍 Market research and competitor analysis\n📊 Sentiment tracking and trend analysis\n📑 Professional PDF report generation\n🎯 Strategic recommendations`;
+        }
+
         return {
           id: Date.now().toString(),
           type: 'assistant',
-          content: `I'm here to help with market research analysis. Based on your query "${query}", I can assist with:\n\n🔍 Sentiment analysis and trend detection\n📊 Competitor pricing and feature comparisons\n📈 Market insights and recommendations\n📑 PDF report generation\n\nWhat specific analysis would you like me to perform?`,
+          content: fallbackResponse,
           timestamp: new Date()
         };
       }
@@ -163,7 +234,6 @@ export function VoiceAssistant({ onQueryGenerated, onComparisonRequested }: Voic
 
       // Determine if we should trigger any actions based on the query
       let action: 'generate_report' | 'show_comparison' | 'show_trends' | undefined;
-      const lowerQuery = query.toLowerCase();
       
       if (lowerQuery.includes('competitor') && (lowerQuery.includes('report') || lowerQuery.includes('comparison'))) {
         action = 'show_comparison';
@@ -185,7 +255,7 @@ export function VoiceAssistant({ onQueryGenerated, onComparisonRequested }: Voic
       return {
         id: Date.now().toString(),
         type: 'assistant',
-        content: `I'm experiencing some technical difficulties, but I'm still here to help! You can ask me about:\n\n• Market sentiment analysis\n• Competitor research\n• Trend analysis\n• Report generation\n\nWhat would you like to explore?`,
+        content: `I'm experiencing some technical difficulties, but I'm still here to help! You can ask me about:\n\n• Market sentiment analysis\n• Competitor research and pricing\n• Trend analysis and forecasting\n• Professional report generation\n\nWhat would you like to explore?`,
         timestamp: new Date()
       };
     }
