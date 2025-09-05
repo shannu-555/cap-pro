@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { History, Eye } from 'lucide-react';
+import { History, Eye, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 interface RecentQueriesProps {
   onQuerySelected: (queryId: string) => void;
@@ -21,7 +22,9 @@ interface QueryItem {
 export function RecentQueries({ onQuerySelected }: RecentQueriesProps) {
   const [queries, setQueries] = useState<QueryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (user) {
@@ -44,6 +47,49 @@ export function RecentQueries({ onQuerySelected }: RecentQueriesProps) {
       console.error('Error fetching queries:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const clearAllQueries = async () => {
+    if (!user || deleting) return;
+    
+    setDeleting(true);
+    try {
+      // Delete all related data first (due to foreign key relationships)
+      const queryIds = queries.map(q => q.id);
+      
+      if (queryIds.length > 0) {
+        // Delete related data
+        await Promise.all([
+          supabase.from('sentiment_analysis').delete().in('query_id', queryIds),
+          supabase.from('competitor_data').delete().in('query_id', queryIds),
+          supabase.from('trend_data').delete().in('query_id', queryIds),
+          supabase.from('research_reports').delete().in('query_id', queryIds)
+        ]);
+
+        // Delete the queries
+        const { error } = await supabase
+          .from('research_queries')
+          .delete()
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+      }
+
+      setQueries([]);
+      toast({
+        title: "History Cleared",
+        description: "All research queries and associated data have been deleted.",
+      });
+    } catch (error) {
+      console.error('Error clearing queries:', error);
+      toast({
+        title: "Error",
+        description: "Failed to clear history. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -96,6 +142,18 @@ export function RecentQueries({ onQuerySelected }: RecentQueriesProps) {
         <CardTitle className="flex items-center gap-2">
           <History className="h-5 w-5" />
           Recent Research
+          {queries.length > 0 && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={clearAllQueries}
+              disabled={deleting}
+              className="ml-auto h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+              title="Clear all history"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent>

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Mic, MicOff, Send, Bot, User, Volume2, Download, BarChart3 } from 'lucide-react';
+import { Mic, MicOff, Send, Bot, User, Volume2, Download, BarChart3, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -319,15 +319,39 @@ Please provide a helpful response that:
     }
   };
 
+  const clearChatHistory = () => {
+    setMessages([
+      {
+        id: '1',
+        type: 'assistant',
+        content: 'Hello! I\'m your AI research assistant. You can ask me questions like "Show me sentiment trends for iPhone this quarter" or "Generate a competitor report comparing Amazon and Flipkart pricing". How can I help you today?',
+        timestamp: new Date()
+      }
+    ]);
+    toast({
+      title: "Chat Cleared",
+      description: "Chat history has been cleared.",
+    });
+  };
+
   return (
     <Card className="professional-card border-primary/20 animate-slide-up h-96">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-primary" />
           AI Research Assistant
-          <Badge variant="outline" className="ml-auto bg-success/10 text-success border-success/20">
+          <Badge variant="outline" className="bg-success/10 text-success border-success/20">
             Voice Enabled
           </Badge>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={clearChatHistory}
+            className="ml-auto h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+            title="Clear chat history"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col h-full p-0">
