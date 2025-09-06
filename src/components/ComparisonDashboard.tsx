@@ -228,9 +228,8 @@ export function ComparisonDashboard() {
           </div>
         ) : (
         <Tabs defaultValue="scorecards" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="scorecards">Scorecards</TabsTrigger>
-            <TabsTrigger value="radar">Feature Radar</TabsTrigger>
             <TabsTrigger value="sentiment">Sentiment Map</TabsTrigger>
             <TabsTrigger value="whatif">What-If Analysis</TabsTrigger>
           </TabsList>
@@ -300,28 +299,6 @@ export function ComparisonDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="radar" className="space-y-4">
-            <div className="h-96">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={radarData[0] ? [radarData[0]] : []}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="name" />
-                  <PolarRadiusAxis angle={30} domain={[0, 100]} />
-                  {selectedData.map((comp, index) => (
-                    <Radar
-                      key={comp.competitor_name}
-                      name={comp.competitor_name}
-                      dataKey={comp.competitor_name}
-                      stroke={`hsl(${index * 60}, 70%, 50%)`}
-                      fill={`hsl(${index * 60}, 70%, 50%)`}
-                      fillOpacity={0.1}
-                      strokeWidth={2}
-                    />
-                  ))}
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-          </TabsContent>
 
           <TabsContent value="sentiment" className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">

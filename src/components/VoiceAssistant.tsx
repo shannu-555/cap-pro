@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Mic, MicOff, Send, Bot, User, Volume2, Download, BarChart3, Trash2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Mic, MicOff, Send, Bot, User, Volume2, Download, BarChart3, Trash2, VolumeX } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -74,20 +76,22 @@ export function VoiceAssistant({ onQueryGenerated, onComparisonRequested }: Voic
     {
       id: '1',
       type: 'assistant',
-      content: 'Hello! I\'m your AI research assistant. You can ask me questions like "Show me sentiment trends for iPhone this quarter" or "Generate a competitor report comparing Amazon and Flipkart pricing". How can I help you today?',
+      content: 'Hello! I\'m your AI research assistant powered by OpenAI. You can ask me questions like "Show me sentiment trends for iPhone this quarter" or "Generate a competitor report comparing Amazon and Flipkart pricing". How can I help you today?',
       timestamp: new Date()
     }
   ]);
   const [inputText, setInputText] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [speechEnabled, setSpeechEnabled] = useState(true);
   const { toast } = useToast();
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Initialize speech recognition
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    if (voiceEnabled && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
@@ -114,7 +118,7 @@ export function VoiceAssistant({ onQueryGenerated, onComparisonRequested }: Voic
         setIsListening(false);
       };
     }
-  }, []);
+  }, [voiceEnabled]);
 
   // Auto-scroll to bottom
   useEffect(() => {

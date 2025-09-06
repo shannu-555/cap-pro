@@ -131,17 +131,18 @@ export function AlertsSystem({ queryId, className }: AlertsSystemProps) {
       </div>
 
       {showAlerts && (
-        <Card className="absolute top-16 right-0 w-96 z-50 glass-effect border-primary/20 animate-slide-down">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Market Alerts</CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowAlerts(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </CardHeader>
+        <div className="fixed top-16 right-4 w-96 z-50">
+          <Card className="glass-effect border-primary/20 animate-slide-down shadow-elegant">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Market Alerts</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAlerts(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </CardHeader>
           <CardContent className="space-y-3 max-h-80 overflow-y-auto">
             {alerts.map((alert) => (
               <div
@@ -177,8 +178,9 @@ export function AlertsSystem({ queryId, className }: AlertsSystemProps) {
                 </p>
               </div>
             ))}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   );
