@@ -25,12 +25,21 @@ serve(async (req) => {
 
     const trendPrompt = `
     Analyze market trends for "${queryText}" (${queryType === 'product' ? 'product' : 'company'}).
-    Provide realistic trend analysis data as if gathered from market research tools.
-    Return a JSON object with:
+    Based on your knowledge of actual market trends, seasonal patterns, and industry growth in this space.
+    
+    Provide REALISTIC trend analysis that reflects actual search volumes and market interest patterns.
+    Consider factors like:
+    - Actual market size for this industry
+    - Seasonal variations (if applicable)
+    - Recent industry developments
+    - Competition levels
+    - Geographic variations
+    
+    Return a JSON object with realistic data:
     {
       "trends": [
         {
-          "keyword": "related keyword",
+          "keyword": "main keyword or related term",
           "searchVolume": 12500,
           "trendDirection": "increasing|decreasing|stable",
           "timePeriod": "30d|90d|1y",
@@ -42,7 +51,8 @@ serve(async (req) => {
       ]
     }
     
-    Generate 3-5 realistic trend entries with different time periods and keywords.
+    Base search volumes on realistic numbers for the ${queryText} industry.
+    Generate 4-6 trend entries covering different aspects and time periods.
     `;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
