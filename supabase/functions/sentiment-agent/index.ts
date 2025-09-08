@@ -242,6 +242,55 @@ serve(async (req) => {
       
       Generate 5-8 realistic sentiment entries that sound like real user feedback.
       `;
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: 'You are a sentiment analysis expert. Provide realistic market sentiment data.' },
+            { role: 'user', content: sentimentPrompt }
+          ],
+          max_tokens: 1500,
+          temperature: 0.7
+        }),
+      });
+
+      const aiData = await response.json();
+      try {
+        sentimentResults = JSON.parse(aiData.choices[0].message.content);
+      } catch {
+        // Fallback data if JSON parsing fails
+        sentimentResults = {
+          sentiments: [
+            {
+              source: 'Twitter/X',
+              sentiment: 'positive',
+              confidence: 0.78,
+              content: `Great experience with ${queryText}! Highly recommend.`,
+              topics: ['quality', 'experience']
+            },
+            {
+              source: 'Reddit',
+              sentiment: 'neutral',
+              confidence: 0.65,
+              content: `Mixed feelings about ${queryText}. Some good points, some concerns.`,
+              topics: ['value', 'features']
+            },
+            {
+              source: 'Product Reviews',
+              sentiment: 'positive',
+              confidence: 0.82,
+              content: `${queryText} exceeded my expectations. Well worth it.`,
+              topics: ['satisfaction', 'value']
+            }
+          ]
+        };
+      }
     }
 
 function extractTopics(text: string): string[] {
@@ -258,56 +307,7 @@ function extractTopics(text: string): string[] {
   return topics.length > 0 ? topics : ['general'];
 }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are a sentiment analysis expert. Provide realistic market sentiment data.' },
-          { role: 'user', content: sentimentPrompt }
-        ],
-        max_tokens: 1500,
-        temperature: 0.7
-      }),
-    });
-
-    const aiData = await response.json();
-    let sentimentResults;
-
-    try {
-      sentimentResults = JSON.parse(aiData.choices[0].message.content);
-    } catch {
-      // Fallback data if JSON parsing fails
-      sentimentResults = {
-        sentiments: [
-          {
-            source: 'Twitter/X',
-            sentiment: 'positive',
-            confidence: 0.78,
-            content: `Great experience with ${queryText}! Highly recommend.`,
-            topics: ['quality', 'experience']
-          },
-          {
-            source: 'Reddit',
-            sentiment: 'neutral',
-            confidence: 0.65,
-            content: `Mixed feelings about ${queryText}. Some good points, some concerns.`,
-            topics: ['value', 'features']
-          },
-          {
-            source: 'Product Reviews',
-            sentiment: 'positive',
-            confidence: 0.82,
-            content: `${queryText} exceeded my expectations. Well worth it.`,
-            topics: ['satisfaction', 'value']
-          }
-        ]
-      };
-    }
+    // AI fallback handled inside the else branch above; redundant block removed.
 
     // Store sentiment data
     for (const sentiment of sentimentResults.sentiments) {

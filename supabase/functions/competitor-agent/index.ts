@@ -228,6 +228,8 @@ serve(async (req) => {
       };
     }
 
+    }
+
     // Store enhanced competitor data
     for (const competitor of competitorResults.competitors) {
       await supabase
