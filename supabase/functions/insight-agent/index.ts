@@ -98,7 +98,7 @@ Focus on recommendations that drive business outcomes: increase sales, improve c
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-5-mini-2025-08-07',
         messages: [
           { 
             role: 'system', 
@@ -106,12 +106,17 @@ Focus on recommendations that drive business outcomes: increase sales, improve c
           },
           { role: 'user', content: prompt }
         ],
-        max_tokens: 2000,
-        temperature: 0.3
+        max_completion_tokens: 2000
       }),
     });
 
     const aiData = await response.json();
+    
+    if (!response.ok || aiData.error) {
+      console.error('OpenAI API error for insights:', aiData.error || response.statusText);
+      // Use fallback insights immediately when API fails
+      throw new Error('OpenAI API failed for insight generation');
+    }
     let insightResults;
 
     try {

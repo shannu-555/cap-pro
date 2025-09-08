@@ -76,7 +76,7 @@ export function VoiceAssistant({ onQueryGenerated, onComparisonRequested }: Voic
     {
       id: '1',
       type: 'assistant',
-      content: 'Hello! I\'m your AI research assistant powered by OpenAI. You can ask me questions like "Show me sentiment trends for iPhone this quarter" or "Generate a competitor report comparing Amazon and Flipkart pricing". How can I help you today?',
+      content: 'Hello! I\'m your AI Market Research Assistant powered by OpenAI. I can help you analyze competitors, track sentiment, identify trends, and generate comprehensive reports. Try asking: "Analyze iPhone 15 competitors" or "Show sentiment for Tesla stock". How can I assist with your market research today?',
       timestamp: new Date()
     }
   ]);
@@ -201,7 +201,7 @@ Please provide a helpful response that:
 3. Suggests actionable next steps
 4. Mentions specific features like comparison dashboard, sentiment analysis, or PDF reports when relevant`;
 
-      const { data, error } = await supabase.functions.invoke('gemini-assistant', {
+      const { data, error } = await supabase.functions.invoke('openai-assistant', {
         body: { 
           message: enhancedQuery,
           userId: 'user-' + Date.now()
@@ -209,7 +209,7 @@ Please provide a helpful response that:
       });
 
       if (error) {
-        console.error('Gemini assistant error:', error);
+        console.error('OpenAI assistant error:', error);
         // Enhanced fallback response based on query content
         let fallbackResponse = `I'm here to help with market research analysis. `;
         
@@ -328,7 +328,7 @@ Please provide a helpful response that:
       {
         id: '1',
         type: 'assistant',
-        content: 'Hello! I\'m your AI research assistant. You can ask me questions like "Show me sentiment trends for iPhone this quarter" or "Generate a competitor report comparing Amazon and Flipkart pricing". How can I help you today?',
+        content: 'Hello! I\'m your AI Market Research Assistant. I can analyze real market data, track competitors, monitor sentiment, and generate professional reports. What would you like to research today?',
         timestamp: new Date()
       }
     ]);
@@ -383,28 +383,38 @@ Please provide a helpful response that:
                       <span className="text-xs opacity-70">
                         {message.timestamp.toLocaleTimeString()}
                       </span>
-                      {message.type === 'assistant' && (
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => speakMessage(message.content)}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Volume2 className="h-3 w-3" />
-                          </Button>
-                          {message.action === 'generate_report' && (
-                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                              <Download className="h-3 w-3" />
-                            </Button>
-                          )}
-                          {message.action === 'show_comparison' && (
-                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                              <BarChart3 className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
-                      )}
+                       {message.type === 'assistant' && speechEnabled && (
+                         <div className="flex gap-1">
+                           <Button
+                             size="sm"
+                             variant="ghost"
+                             onClick={() => speakMessage(message.content)}
+                             className="h-6 w-6 p-0"
+                             title="Read aloud"
+                           >
+                             <Volume2 className="h-3 w-3" />
+                           </Button>
+                           <Button
+                             size="sm"
+                             variant="ghost"
+                             onClick={() => setSpeechEnabled(false)}
+                             className="h-6 w-6 p-0"
+                             title="Disable speech"
+                           >
+                             <VolumeX className="h-3 w-3" />
+                           </Button>
+                           {message.action === 'generate_report' && (
+                             <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                               <Download className="h-3 w-3" />
+                             </Button>
+                           )}
+                           {message.action === 'show_comparison' && (
+                             <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                               <BarChart3 className="h-3 w-3" />
+                             </Button>
+                           )}
+                         </div>
+                       )}
                     </div>
                   </div>
                 </div>

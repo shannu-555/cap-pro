@@ -120,19 +120,34 @@ If asking about specific products, provide real product names and variants when 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-5-mini-2025-08-07',
         messages: [
           { role: 'system', content: enhancedPrompt }
         ],
-        max_tokens: 1024,
-        temperature: 0.7,
+        max_completion_tokens: 1024,
       }),
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('OpenAI API error:', error);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('OpenAI API error:', response.status, errorText);
+      
+      // Handle quota exceeded or other API errors with intelligent fallback
+      let fallbackResponse = "I'm your AI Market Research Assistant. ";
+      
+      if (errorText.includes('insufficient_quota')) {
+        fallbackResponse += "I'm currently experiencing high demand, but I can still help you with:\n\n• **Competitor Analysis**: Track pricing, features, and market positioning\n• **Sentiment Monitoring**: Analyze customer opinions across platforms\n• **Trend Detection**: Identify emerging market patterns\n• **Report Generation**: Create comprehensive PDF reports\n\nWhat specific market research would you like me to help with?";
+      } else {
+        fallbackResponse += `Based on your query about "${message}", I can provide market research insights. What specific aspect would you like me to analyze - competitors, sentiment, or trends?`;
+      }
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        response: fallbackResponse,
+        fallback: true
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const data = await response.json();
