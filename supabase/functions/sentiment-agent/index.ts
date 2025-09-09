@@ -276,21 +276,42 @@ serve(async (req) => {
           
           if (normalizedQuery.includes('iphone') || normalizedQuery.includes('apple')) {
             return [
-              { source: 'Twitter/X', sentiment: 'positive', confidence: 0.85, content: 'New iPhone camera quality is incredible! Worth the upgrade.', topics: ['camera', 'quality', 'upgrade'] },
-              { source: 'Reddit', sentiment: 'neutral', confidence: 0.72, content: 'iPhone is good but overpriced compared to Android alternatives.', topics: ['price', 'value', 'competition'] },
-              { source: 'Product Reviews', sentiment: 'positive', confidence: 0.89, content: 'Apple delivers premium experience with excellent build quality.', topics: ['build quality', 'premium', 'experience'] }
+              { source: 'Twitter/X', sentiment: 'positive', confidence: 0.92, content: 'iPhone camera quality is incredible, especially in low light! Worth every penny.', topics: ['camera', 'quality', 'low light'] },
+              { source: 'Reddit', sentiment: 'negative', confidence: 0.85, content: 'Battery life on my iPhone has been disappointing lately, needs charging twice a day', topics: ['battery', 'life', 'charging'] },
+              { source: 'Amazon Reviews', sentiment: 'neutral', confidence: 0.78, content: 'Great phone overall but the price is getting ridiculous. Still works flawlessly though.', topics: ['price', 'performance', 'value'] },
+              { source: 'YouTube', sentiment: 'positive', confidence: 0.89, content: 'Love the build quality and iOS ecosystem, seamless integration with my MacBook', topics: ['build quality', 'ecosystem', 'integration'] },
+              { source: 'TikTok', sentiment: 'neutral', confidence: 0.71, content: 'iPhone vs Android debate is so old... both are good, depends on what you need', topics: ['comparison', 'android', 'preference'] }
             ];
           } else if (normalizedQuery.includes('samsung') || normalizedQuery.includes('galaxy')) {
             return [
-              { source: 'Twitter/X', sentiment: 'positive', confidence: 0.81, content: 'Samsung Galaxy features are amazing, especially the display!', topics: ['display', 'features', 'innovation'] },
-              { source: 'Reddit', sentiment: 'positive', confidence: 0.76, content: 'Great Android phone with lots of customization options.', topics: ['android', 'customization', 'options'] },
-              { source: 'Product Reviews', sentiment: 'neutral', confidence: 0.68, content: 'Solid phone but software updates could be faster.', topics: ['software', 'updates', 'performance'] }
+              { source: 'Twitter/X', sentiment: 'positive', confidence: 0.88, content: 'Samsung Galaxy features are amazing, especially the S Pen and display quality!', topics: ['s pen', 'display', 'features'] },
+              { source: 'Reddit', sentiment: 'positive', confidence: 0.82, content: 'Great Android phone with tons of customization options and features', topics: ['android', 'customization', 'features'] },
+              { source: 'Amazon Reviews', sentiment: 'neutral', confidence: 0.74, content: 'Solid phone but OneUI can be overwhelming for new users', topics: ['oneui', 'user experience', 'learning curve'] },
+              { source: 'YouTube', sentiment: 'positive', confidence: 0.87, content: 'Camera versatility is unmatched, especially the zoom capabilities', topics: ['camera', 'zoom', 'versatility'] }
+            ];
+          } else if (normalizedQuery.includes('tesla') || normalizedQuery.includes('electric car')) {
+            return [
+              { source: 'Twitter/X', sentiment: 'positive', confidence: 0.94, content: 'Tesla charging network is unmatched. Road trips are actually enjoyable now!', topics: ['charging', 'network', 'road trips'] },
+              { source: 'Reddit', sentiment: 'negative', confidence: 0.87, content: 'Build quality issues with my Model 3, panel gaps and paint problems', topics: ['build quality', 'panel gaps', 'paint'] },
+              { source: 'News', sentiment: 'neutral', confidence: 0.82, content: 'Tesla stock volatile amid production concerns and market competition', topics: ['stock', 'production', 'competition'] },
+              { source: 'YouTube', sentiment: 'neutral', confidence: 0.79, content: 'Autopilot is impressive but still needs attention. Not fully self-driving yet.', topics: ['autopilot', 'self-driving', 'attention'] },
+              { source: 'Facebook', sentiment: 'positive', confidence: 0.91, content: 'Best car I ever owned! Silent, fast, and saves money on gas', topics: ['ownership', 'performance', 'savings'] }
+            ];
+          } else if (normalizedQuery.includes('nothing') || normalizedQuery.includes('nothing phone')) {
+            return [
+              { source: 'Twitter/X', sentiment: 'positive', confidence: 0.88, content: 'Nothing Phone design is unique with the glyph interface, really stands out', topics: ['design', 'glyph', 'unique'] },
+              { source: 'Reddit', sentiment: 'neutral', confidence: 0.76, content: 'Camera quality is decent but not flagship level for the price point', topics: ['camera', 'quality', 'price'] },
+              { source: 'YouTube', sentiment: 'positive', confidence: 0.89, content: 'Nothing OS is clean and close to stock Android, no bloatware!', topics: ['nothing os', 'android', 'bloatware'] },
+              { source: 'Amazon Reviews', sentiment: 'neutral', confidence: 0.74, content: 'Build quality feels premium but battery life could be better', topics: ['build quality', 'battery life', 'premium'] },
+              { source: 'TikTok', sentiment: 'positive', confidence: 0.85, content: 'The transparent back and LED lights are so cool, very aesthetic phone', topics: ['transparent', 'led', 'aesthetic'] }
             ];
           } else {
             return [
-              { source: 'Twitter/X', sentiment: 'positive', confidence: 0.78, content: `Great experience with ${queryText}! Highly recommend.`, topics: ['quality', 'experience'] },
-              { source: 'Reddit', sentiment: 'neutral', confidence: 0.65, content: `Mixed feelings about ${queryText}. Some good points, some concerns.`, topics: ['value', 'features'] },
-              { source: 'Product Reviews', sentiment: 'positive', confidence: 0.82, content: `${queryText} exceeded expectations. Well worth it.`, topics: ['satisfaction', 'value'] }
+              { source: 'Twitter/X', sentiment: 'positive', confidence: 0.87, content: 'Really impressed with the features and build quality, exceeded expectations', topics: ['features', 'build quality', 'expectations'] },
+              { source: 'Reddit', sentiment: 'neutral', confidence: 0.75, content: 'Price seems high compared to alternatives, but performance is solid', topics: ['price', 'alternatives', 'performance'] },
+              { source: 'Amazon Reviews', sentiment: 'positive', confidence: 0.89, content: 'Great product, works as advertised. Would recommend to others!', topics: ['product', 'recommendation', 'works'] },
+              { source: 'YouTube', sentiment: 'neutral', confidence: 0.72, content: 'Some issues with customer service response time, but product itself is good', topics: ['customer service', 'response time', 'product'] },
+              { source: 'Facebook', sentiment: 'positive', confidence: 0.86, content: 'Been using for months now, very reliable and consistent performance', topics: ['reliability', 'consistent', 'performance'] }
             ];
           }
         };

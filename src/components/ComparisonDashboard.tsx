@@ -89,13 +89,13 @@ export function ComparisonDashboard() {
           description: "Could not load competitor data. Using sample data.",
           variant: "destructive"
         });
-        // Use fallback sample data
+        // Use realistic market data as fallback
         setCompetitors([
-          { id: '1', competitor_name: 'Apple iPhone', price: 999, rating: 4.5, features: ['Advanced Camera', '5G', 'Face ID', 'Wireless Charging'], query_id: 'sample' },
-          { id: '2', competitor_name: 'Samsung Galaxy', price: 899, rating: 4.3, features: ['S Pen', 'Foldable Display', '5G', 'Fast Charging'], query_id: 'sample' },
-          { id: '3', competitor_name: 'Google Pixel', price: 799, rating: 4.1, features: ['Pure Android', 'AI Photography', '5G', 'Fast Updates'], query_id: 'sample' }
+          { id: '1', competitor_name: 'iPhone 15 Pro Max', price: 1199, rating: 4.5, features: ['A17 Pro Chip', 'Titanium Design', '48MP Camera', 'Action Button'], query_id: 'sample' },
+          { id: '2', competitor_name: 'Samsung Galaxy S24 Ultra', price: 1199, rating: 4.4, features: ['S Pen', '200MP Camera', '5000mAh Battery', '120Hz Display'], query_id: 'sample' },
+          { id: '3', competitor_name: 'Google Pixel 8 Pro', price: 999, rating: 4.3, features: ['AI Photography', 'Tensor G3', 'Magic Eraser', '7 Years Updates'], query_id: 'sample' }
         ]);
-        setSelectedCompetitors(['Apple iPhone', 'Samsung Galaxy']);
+        setSelectedCompetitors(['iPhone 15 Pro Max', 'Samsung Galaxy S24 Ultra']);
       } else {
         // Process real competitor data
         const processedCompetitors = competitorData?.map(comp => ({

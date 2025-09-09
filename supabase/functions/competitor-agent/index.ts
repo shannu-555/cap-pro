@@ -194,23 +194,41 @@ serve(async (req) => {
       const getRealisticCompetitors = (query: string) => {
         const normalizedQuery = query.toLowerCase();
         
-        if (normalizedQuery.includes('smartphone') || normalizedQuery.includes('phone') || normalizedQuery.includes('mobile')) {
+        if (normalizedQuery.includes('smartphone') || normalizedQuery.includes('phone') || normalizedQuery.includes('mobile') || normalizedQuery.includes('iphone') || normalizedQuery.includes('nothing phone')) {
           return [
-            { name: 'Apple iPhone 15', price: 799, rating: 4.5, features: ['A17 Pro Chip', '48MP Camera', 'Dynamic Island', 'USB-C'] },
-            { name: 'Samsung Galaxy S24', price: 699, rating: 4.4, features: ['Snapdragon 8 Gen 3', 'AI Photography', '120Hz Display', '5000mAh Battery'] },
-            { name: 'Google Pixel 8', price: 599, rating: 4.3, features: ['Tensor G3', 'Magic Eraser', 'Call Screen', 'Pure Android'] }
+            { name: 'iPhone 15 Pro Max', price: 1199, rating: 4.5, features: ['A17 Pro Chip', 'Titanium Design', '48MP Camera', 'Action Button'] },
+            { name: 'Samsung Galaxy S24 Ultra', price: 1199, rating: 4.4, features: ['S Pen', '200MP Camera', '5000mAh Battery', '120Hz Display'] },
+            { name: 'Google Pixel 8 Pro', price: 999, rating: 4.3, features: ['AI Photography', 'Tensor G3', 'Magic Eraser', '7 Years Updates'] },
+            { name: 'OnePlus 12', price: 799, rating: 4.2, features: ['Snapdragon 8 Gen 3', '100W Charging', '50MP Camera', 'OxygenOS 14'] },
+            { name: 'Xiaomi 14 Ultra', price: 1299, rating: 4.1, features: ['Leica Camera', 'Snapdragon 8 Gen 3', '90W Charging', '6.73" LTPO AMOLED'] }
           ];
-        } else if (normalizedQuery.includes('laptop') || normalizedQuery.includes('computer')) {
+        } else if (normalizedQuery.includes('laptop') || normalizedQuery.includes('computer') || normalizedQuery.includes('macbook')) {
           return [
-            { name: 'MacBook Air M3', price: 1299, rating: 4.6, features: ['Apple M3 Chip', '18-hour battery', 'Liquid Retina Display', '8GB RAM'] },
-            { name: 'Dell XPS 13', price: 999, rating: 4.3, features: ['Intel Core i7', '16GB RAM', '4K Display', 'Windows 11'] },
-            { name: 'Lenovo ThinkPad X1', price: 1199, rating: 4.4, features: ['Intel Core i7', 'Business Grade', 'Trackpoint', '14-inch Display'] }
+            { name: 'MacBook Pro 14" M3', price: 1999, rating: 4.6, features: ['Apple M3 Pro Chip', '18-hour battery', 'Liquid Retina XDR', '16GB RAM'] },
+            { name: 'Dell XPS 13 Plus', price: 1299, rating: 4.3, features: ['Intel Core i7-13700H', '16GB RAM', '4K OLED Display', 'Windows 11 Pro'] },
+            { name: 'Lenovo ThinkPad X1 Carbon', price: 1399, rating: 4.4, features: ['Intel Core i7-13700U', 'Business Grade', 'TrackPoint', '14" 2.8K Display'] },
+            { name: 'HP Spectre x360', price: 1199, rating: 4.2, features: ['Intel Core i7', '2-in-1 Design', 'OLED Touch', '16GB RAM'] }
+          ];
+        } else if (normalizedQuery.includes('tesla') || normalizedQuery.includes('electric') || normalizedQuery.includes('ev') || normalizedQuery.includes('car')) {
+          return [
+            { name: 'BMW iX xDrive50', price: 84100, rating: 4.2, features: ['516 HP', '324 mile range', 'xDrive AWD', 'Curved Display'] },
+            { name: 'Mercedes EQS 450+', price: 102310, rating: 4.3, features: ['516 HP', '453 mile range', 'MBUX Hyperscreen', 'Air Suspension'] },
+            { name: 'Audi e-tron GT', price: 99900, rating: 4.1, features: ['469 HP', '238 mile range', 'Quattro AWD', '800V Architecture'] },
+            { name: 'Lucid Air Dream', price: 139000, rating: 4.4, features: ['1111 HP', '516 mile range', 'Glass Canopy', 'Ultra-luxury Interior'] }
+          ];
+        } else if (normalizedQuery.includes('gaming') || normalizedQuery.includes('console') || normalizedQuery.includes('playstation') || normalizedQuery.includes('xbox')) {
+          return [
+            { name: 'PlayStation 5', price: 499, rating: 4.5, features: ['AMD Zen 2', 'Ray Tracing', 'DualSense Controller', '4K Gaming'] },
+            { name: 'Xbox Series X', price: 499, rating: 4.4, features: ['AMD Zen 2', '12 TFLOPS GPU', 'Quick Resume', 'Game Pass'] },
+            { name: 'Nintendo Switch OLED', price: 349, rating: 4.3, features: ['7" OLED Screen', 'Portable Gaming', 'Nintendo Exclusives', 'Joy-Con Controllers'] },
+            { name: 'Steam Deck', price: 399, rating: 4.1, features: ['AMD APU', 'Handheld PC Gaming', 'Steam Library', '7" Touchscreen'] }
           ];
         } else {
           return [
-            { name: `Industry Leader`, price: Math.floor(Math.random() * 300) + 200, rating: 4.2 + Math.random() * 0.6, features: ['Premium Features', 'Market Leading', '24/7 Support'] },
-            { name: `Value Option`, price: Math.floor(Math.random() * 150) + 100, rating: 3.8 + Math.random() * 0.7, features: ['Good Value', 'Standard Features', 'Email Support'] },
-            { name: `Budget Choice`, price: Math.floor(Math.random() * 80) + 50, rating: 3.5 + Math.random() * 0.5, features: ['Basic Features', 'Affordable Price', 'Community Support'] }
+            { name: `Premium Market Leader`, price: Math.floor(Math.random() * 500) + 500, rating: 4.2 + Math.random() * 0.6, features: ['Premium Features', 'Industry Leading', '24/7 Support', 'Advanced Analytics'] },
+            { name: `Value Champion`, price: Math.floor(Math.random() * 200) + 200, rating: 3.8 + Math.random() * 0.7, features: ['Great Value', 'Core Features', 'Email Support', 'Standard API'] },
+            { name: `Budget Solution`, price: Math.floor(Math.random() * 100) + 100, rating: 3.5 + Math.random() * 0.5, features: ['Essential Features', 'Affordable Price', 'Community Support', 'Basic Integration'] },
+            { name: `Innovation Pioneer`, price: Math.floor(Math.random() * 300) + 700, rating: 4.0 + Math.random() * 0.5, features: ['Cutting Edge', 'AI-Powered', 'Advanced Security', 'Real-time Analytics'] }
           ];
         }
       };

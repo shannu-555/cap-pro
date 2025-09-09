@@ -192,19 +192,26 @@ export function VoiceAssistant({ onQueryGenerated, onComparisonRequested }: Voic
         }
       }
 
-      // Call the Gemini AI assistant with enhanced context
+      // Call the OpenAI assistant with enhanced context and unique context for each query
+      const uniqueContext = `Query ID: ${Date.now()}-${Math.random()}`;
       const enhancedQuery = `${query}${realDataContext}
 
+Context: ${uniqueContext}
+
 Please provide a helpful response that:
-1. Directly addresses the user's question
-2. Uses the real data context if provided
+1. Directly addresses the user's question with unique insights
+2. Uses the real data context if provided  
 3. Suggests actionable next steps
-4. Mentions specific features like comparison dashboard, sentiment analysis, or PDF reports when relevant`;
+4. Mentions specific features like comparison dashboard, sentiment analysis, or PDF reports when relevant
+5. Provides personalized recommendations based on the query
+
+Make your response unique and specific to this query, avoiding generic replies.`;
 
       const { data, error } = await supabase.functions.invoke('openai-assistant', {
         body: { 
           message: enhancedQuery,
-          userId: 'user-' + Date.now()
+          userId: 'user-' + Date.now() + '-' + Math.random(),
+          context: uniqueContext
         }
       });
 
