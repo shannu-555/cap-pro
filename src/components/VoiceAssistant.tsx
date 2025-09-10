@@ -73,12 +73,12 @@ interface VoiceAssistantProps {
 
 export function VoiceAssistant({ onQueryGenerated, onComparisonRequested }: VoiceAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      type: 'assistant',
-      content: 'Hello! I\'m your AI Market Research Assistant powered by OpenAI. I can help you analyze competitors, track sentiment, identify trends, and generate comprehensive reports. Try asking: "Analyze iPhone 15 competitors" or "Show sentiment for Tesla stock". How can I assist with your market research today?',
-      timestamp: new Date()
-    }
+        {
+          id: '1',
+          type: 'assistant',
+          content: 'Hello! I\'m your AI Market Research Assistant powered by Groq. I can help you analyze competitors, track sentiment, identify trends, and generate comprehensive reports using real-time data. Try asking: "Analyze iPhone 15 competitors" or "Show sentiment for Tesla stock". How can I assist with your market research today?',
+          timestamp: new Date()
+        }
   ]);
   const [inputText, setInputText] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -207,41 +207,37 @@ Please provide a helpful response that:
 
 Make your response unique and specific to this query, avoiding generic replies.`;
 
-      const { data, error } = await supabase.functions.invoke('openai-assistant', {
-        body: { 
-          message: enhancedQuery,
-          userId: 'user-' + Date.now() + '-' + Math.random(),
-          context: uniqueContext
+        const { data: assistantData, error: assistantError } = await supabase.functions.invoke('groq-assistant', {
+          body: { message: enhancedQuery, queryId: null }
+        });
+
+        if (assistantError) {
+          console.error('Assistant error:', assistantError);
+          // Enhanced fallback response based on query content
+          let fallbackResponse = `I'm here to help with market research analysis. `;
+          
+          if (lowerQuery.includes('competitor')) {
+            fallbackResponse += `For competitor analysis, I can help you:\n• Compare pricing and features across competitors\n• Generate comprehensive competitor reports\n• Analyze market positioning`;
+          } else if (lowerQuery.includes('sentiment')) {
+            fallbackResponse += `For sentiment analysis, I can:\n• Track customer opinions across social media\n• Monitor brand sentiment trends\n• Provide sentiment breakdowns by source`;
+          } else if (lowerQuery.includes('trend')) {
+            fallbackResponse += `For trend analysis, I can:\n• Identify emerging market patterns\n• Track search volume changes\n• Predict market direction`;
+          } else if (lowerQuery.includes('report') || lowerQuery.includes('pdf')) {
+            fallbackResponse += `I can generate comprehensive PDF reports including:\n• Executive summary with key insights\n• Detailed competitor analysis\n• Sentiment trends and market data\n• Actionable recommendations`;
+          } else {
+            fallbackResponse += `I can assist with:\n🔍 Market research and competitor analysis\n📊 Sentiment tracking and trend analysis\n📑 Professional PDF report generation\n🎯 Strategic recommendations`;
+          }
+
+          return {
+            id: Date.now().toString(),
+            type: 'assistant',
+            content: fallbackResponse,
+            timestamp: new Date()
+          };
         }
-      });
 
-      if (error) {
-        console.error('OpenAI assistant error:', error);
-        // Enhanced fallback response based on query content
-        let fallbackResponse = `I'm here to help with market research analysis. `;
-        
-        if (lowerQuery.includes('competitor')) {
-          fallbackResponse += `For competitor analysis, I can help you:\n• Compare pricing and features across competitors\n• Generate comprehensive competitor reports\n• Analyze market positioning`;
-        } else if (lowerQuery.includes('sentiment')) {
-          fallbackResponse += `For sentiment analysis, I can:\n• Track customer opinions across social media\n• Monitor brand sentiment trends\n• Provide sentiment breakdowns by source`;
-        } else if (lowerQuery.includes('trend')) {
-          fallbackResponse += `For trend analysis, I can:\n• Identify emerging market patterns\n• Track search volume changes\n• Predict market direction`;
-        } else if (lowerQuery.includes('report') || lowerQuery.includes('pdf')) {
-          fallbackResponse += `I can generate comprehensive PDF reports including:\n• Executive summary with key insights\n• Detailed competitor analysis\n• Sentiment trends and market data\n• Actionable recommendations`;
-        } else {
-          fallbackResponse += `I can assist with:\n🔍 Market research and competitor analysis\n📊 Sentiment tracking and trend analysis\n📑 Professional PDF report generation\n🎯 Strategic recommendations`;
-        }
-
-        return {
-          id: Date.now().toString(),
-          type: 'assistant',
-          content: fallbackResponse,
-          timestamp: new Date()
-        };
-      }
-
-      const responseText = data?.response || data?.fallback || 
-        `I can help analyze "${query}" for you. What specific market research would you like me to perform?`;
+        const responseText = assistantData?.response || assistantData?.fallback || 
+          `I can help analyze "${query}" for you. What specific market research would you like me to perform?`;
 
       // Determine if we should trigger any actions based on the query
       let action: 'generate_report' | 'show_comparison' | 'show_trends' | undefined;
