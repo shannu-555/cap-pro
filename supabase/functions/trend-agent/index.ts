@@ -2,7 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 
-const groqApiKey = Deno.env.get('GROQ_API_KEY');
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -55,33 +55,36 @@ serve(async (req) => {
     Generate 4-6 trend entries covering different aspects and time periods.
     `;
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${groqApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
-        messages: [
-          { role: 'system', content: 'You are a market trend analyst. Provide realistic trend data with proper JSON format.' },
-          { role: 'user', content: trendPrompt }
-        ],
-        max_tokens: 1500
+        contents: [{
+          parts: [{
+            text: `You are a market trend analyst. Provide realistic trend data with proper JSON format.\n\n${trendPrompt}`
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1500,
+        }
       }),
     });
 
     const aiData = await response.json();
     
     if (!response.ok || aiData.error) {
-      console.error('Groq API error for trends:', aiData.error || response.statusText);
-      throw new Error('Groq API failed for trend analysis');
+      console.error('Gemini API error for trends:', aiData.error || response.statusText);
+      throw new Error('Gemini API failed for trend analysis');
     }
 
     let trendResults;
 
     try {
-      trendResults = JSON.parse(aiData.choices[0].message.content);
+      const generatedText = aiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      trendResults = JSON.parse(generatedText);
     } catch (parseError) {
       console.error('Failed to parse trend AI response, using realistic fallback');
       

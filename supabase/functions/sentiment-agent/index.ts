@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 import { createHmac } from "node:crypto";
 
-const groqApiKey = Deno.env.get('GROQ_API_KEY');
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 const twitterConsumerKey = Deno.env.get('TWITTER_CONSUMER_KEY');
 const twitterConsumerSecret = Deno.env.get('TWITTER_CONSUMER_SECRET');
 const twitterAccessToken = Deno.env.get('TWITTER_ACCESS_TOKEN');

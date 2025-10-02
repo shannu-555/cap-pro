@@ -2,7 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 
-const groqApiKey = Deno.env.get('GROQ_API_KEY');
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 const googleApiKey = Deno.env.get('GOOGLE_CUSTOM_SEARCH_API_KEY');
 const googleCseId = Deno.env.get('GOOGLE_CUSTOM_SEARCH_ENGINE_ID');
 
@@ -162,19 +162,21 @@ serve(async (req) => {
       Use your knowledge of REAL companies and products in the ${queryText} space. Be specific and accurate.
       `;
 
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${groqApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'llama-3.1-70b-versatile',
-          messages: [
-            { role: 'system', content: 'You are a competitive intelligence expert with comprehensive knowledge of real market players. Always use actual company/product names, not generic alternatives.' },
-            { role: 'user', content: competitorPrompt }
-          ],
-          max_tokens: 2000
+          contents: [{
+            parts: [{
+              text: `You are a competitive intelligence expert with comprehensive knowledge of real market players. Always use actual company/product names, not generic alternatives.\n\n${competitorPrompt}`
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 2000,
+          }
         }),
       });
 
@@ -182,12 +184,13 @@ serve(async (req) => {
       console.log('AI Response for competitors:', aiData);
 
       if (!response.ok || aiData.error) {
-        console.error('Groq API error:', aiData.error || response.statusText);
-        throw new Error('Groq API failed');
+        console.error('Gemini API error:', aiData.error || response.statusText);
+        throw new Error('Gemini API failed');
       }
 
     try {
-      competitorResults = JSON.parse(aiData.choices[0].message.content);
+      const generatedText = aiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      competitorResults = JSON.parse(generatedText);
     } catch (parseError) {
       console.error('Failed to parse AI response, using realistic fallback data');
       // Create realistic competitors based on the query
