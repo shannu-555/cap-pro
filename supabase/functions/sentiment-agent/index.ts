@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 import { createHmac } from "node:crypto";
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const groqApiKey = Deno.env.get('GROQ_API_KEY');
 const twitterConsumerKey = Deno.env.get('TWITTER_CONSUMER_KEY');
 const twitterConsumerSecret = Deno.env.get('TWITTER_CONSUMER_SECRET');
 const twitterAccessToken = Deno.env.get('TWITTER_ACCESS_TOKEN');
@@ -243,28 +243,28 @@ serve(async (req) => {
       Generate 5-8 realistic sentiment entries that sound like real user feedback.
       `;
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
+          'Authorization': `Bearer ${groqApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-5-mini-2025-08-07',
+          model: 'llama-3.1-70b-versatile',
           messages: [
-            { role: 'system', content: 'You are a sentiment analysis expert. Provide realistic market sentiment data.' },
+            { role: 'system', content: 'You are a sentiment analysis expert. Provide realistic sentiment data based on actual market knowledge.' },
             { role: 'user', content: sentimentPrompt }
           ],
-          max_completion_tokens: 1500
+          max_tokens: 1500
         }),
       });
 
       const aiData = await response.json();
       
-      if (!response.ok || aiData.error) {
-        console.error('OpenAI API error for sentiment:', aiData.error || response.statusText);
-        throw new Error('OpenAI API failed for sentiment analysis');
-      }
+    if (!response.ok || aiData.error) {
+      console.error('Groq API error for sentiment:', aiData.error || response.statusText);
+      throw new Error('Groq API failed for sentiment analysis');
+    }
 
       try {
         sentimentResults = JSON.parse(aiData.choices[0].message.content);

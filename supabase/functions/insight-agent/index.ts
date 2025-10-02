@@ -2,7 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const groqApiKey = Deno.env.get('GROQ_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -91,14 +91,14 @@ Format as JSON:
 
 Focus on recommendations that drive business outcomes: increase sales, improve customer satisfaction, counter competitive threats, or capitalize on market opportunities.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${groqApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-5-mini-2025-08-07',
+        model: 'llama-3.1-70b-versatile',
         messages: [
           { 
             role: 'system', 
@@ -106,16 +106,16 @@ Focus on recommendations that drive business outcomes: increase sales, improve c
           },
           { role: 'user', content: prompt }
         ],
-        max_completion_tokens: 2000
+        max_tokens: 2000
       }),
     });
 
     const aiData = await response.json();
     
     if (!response.ok || aiData.error) {
-      console.error('OpenAI API error for insights:', aiData.error || response.statusText);
+      console.error('Groq API error for insights:', aiData.error || response.statusText);
       // Use fallback insights immediately when API fails
-      throw new Error('OpenAI API failed for insight generation');
+      throw new Error('Groq API failed for insight generation');
     }
     let insightResults;
 

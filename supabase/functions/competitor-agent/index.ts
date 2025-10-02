@@ -2,7 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.55.0';
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const groqApiKey = Deno.env.get('GROQ_API_KEY');
 const googleApiKey = Deno.env.get('GOOGLE_CUSTOM_SEARCH_API_KEY');
 const googleCseId = Deno.env.get('GOOGLE_CUSTOM_SEARCH_ENGINE_ID');
 
@@ -162,19 +162,19 @@ serve(async (req) => {
       Use your knowledge of REAL companies and products in the ${queryText} space. Be specific and accurate.
       `;
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
+          'Authorization': `Bearer ${groqApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-5-mini-2025-08-07',
+          model: 'llama-3.1-70b-versatile',
           messages: [
             { role: 'system', content: 'You are a competitive intelligence expert with comprehensive knowledge of real market players. Always use actual company/product names, not generic alternatives.' },
             { role: 'user', content: competitorPrompt }
           ],
-          max_completion_tokens: 2000
+          max_tokens: 2000
         }),
       });
 
@@ -182,8 +182,8 @@ serve(async (req) => {
       console.log('AI Response for competitors:', aiData);
 
       if (!response.ok || aiData.error) {
-        console.error('OpenAI API error:', aiData.error || response.statusText);
-        throw new Error('OpenAI API failed');
+        console.error('Groq API error:', aiData.error || response.statusText);
+        throw new Error('Groq API failed');
       }
 
     try {
