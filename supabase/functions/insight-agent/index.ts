@@ -91,36 +91,36 @@ Format as JSON:
 
 Focus on recommendations that drive business outcomes: increase sales, improve customer satisfaction, counter competitive threats, or capitalize on market opportunities.`;
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${groqApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
-        messages: [
-          { 
-            role: 'system', 
-            content: 'You are a senior business strategist who converts market research data into specific, actionable business recommendations. Focus on concrete actions that drive measurable business outcomes.' 
-          },
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: 2000
+        contents: [{
+          parts: [{
+            text: `You are a senior business strategist who converts market research data into specific, actionable business recommendations. Focus on concrete actions that drive measurable business outcomes.\n\n${prompt}`
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2000,
+        }
       }),
     });
 
     const aiData = await response.json();
     
     if (!response.ok || aiData.error) {
-      console.error('Groq API error for insights:', aiData.error || response.statusText);
+      console.error('Gemini API error for insights:', aiData.error || response.statusText);
       // Use fallback insights immediately when API fails
-      throw new Error('Groq API failed for insight generation');
+      throw new Error('Gemini API failed for insight generation');
     }
     let insightResults;
 
     try {
-      insightResults = JSON.parse(aiData.choices[0].message.content);
+      const generatedText = aiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      insightResults = JSON.parse(generatedText);
       
       // Validate the structure and enhance with action-oriented defaults if needed
       if (!insightResults.recommendations || insightResults.recommendations.length === 0) {

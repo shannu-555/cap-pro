@@ -243,31 +243,34 @@ serve(async (req) => {
       Generate 5-8 realistic sentiment entries that sound like real user feedback.
       `;
 
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${groqApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'llama-3.1-70b-versatile',
-          messages: [
-            { role: 'system', content: 'You are a sentiment analysis expert. Provide realistic sentiment data based on actual market knowledge.' },
-            { role: 'user', content: sentimentPrompt }
-          ],
-          max_tokens: 1500
+          contents: [{
+            parts: [{
+              text: `You are a sentiment analysis expert. Provide realistic sentiment data based on actual market knowledge.\n\n${sentimentPrompt}`
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1500,
+          }
         }),
       });
 
       const aiData = await response.json();
       
     if (!response.ok || aiData.error) {
-      console.error('Groq API error for sentiment:', aiData.error || response.statusText);
-      throw new Error('Groq API failed for sentiment analysis');
+      console.error('Gemini API error for sentiment:', aiData.error || response.statusText);
+      throw new Error('Gemini API failed for sentiment analysis');
     }
 
       try {
-        sentimentResults = JSON.parse(aiData.choices[0].message.content);
+        const generatedText = aiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        sentimentResults = JSON.parse(generatedText);
       } catch (parseError) {
         console.error('Failed to parse sentiment AI response, using realistic fallback');
         // Create realistic sentiment based on query
