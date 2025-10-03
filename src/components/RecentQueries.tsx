@@ -63,8 +63,9 @@ export function RecentQueries({ onQuerySelected }: RecentQueriesProps) {
       const queryIds = queries.map(q => q.id);
       
       if (queryIds.length > 0) {
-        // Delete related data
+        // Delete related data (including research_chunks)
         await Promise.all([
+          supabase.from('research_chunks').delete().in('query_id', queryIds),
           supabase.from('sentiment_analysis').delete().in('query_id', queryIds),
           supabase.from('competitor_data').delete().in('query_id', queryIds),
           supabase.from('trend_data').delete().in('query_id', queryIds),
@@ -102,8 +103,9 @@ export function RecentQueries({ onQuerySelected }: RecentQueriesProps) {
 
     setDeleting(queryId);
     try {
-      // Delete related data first
+      // Delete related data first (including research_chunks)
       await Promise.all([
+        supabase.from('research_chunks').delete().eq('query_id', queryId),
         supabase.from('sentiment_analysis').delete().eq('query_id', queryId),
         supabase.from('competitor_data').delete().eq('query_id', queryId),
         supabase.from('trend_data').delete().eq('query_id', queryId),

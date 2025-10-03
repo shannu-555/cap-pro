@@ -154,6 +154,12 @@ Please provide a detailed, data-driven response based on the available market in
 
     const assistantResponse = groqData.choices[0].message.content;
 
+    // Extract data lengths from the settled promises
+    const sentimentData = sentimentRes.status === 'fulfilled' ? sentimentRes.value.data || [] : [];
+    const competitorData = competitorRes.status === 'fulfilled' ? competitorRes.value.data || [] : [];
+    const trendData = trendRes.status === 'fulfilled' ? trendRes.value.data || [] : [];
+    const chunksData = chunksRes.status === 'fulfilled' ? chunksRes.value.data || [] : [];
+
     return new Response(JSON.stringify({ 
       response: assistantResponse,
       hasContext: !!contextData,

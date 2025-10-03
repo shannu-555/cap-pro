@@ -192,11 +192,25 @@ export function VoiceAssistant({ onQueryGenerated, onComparisonRequested }: Voic
         }
       }
 
-      // Call the OpenAI assistant with enhanced context and unique context for each query
-      const uniqueContext = `Query ID: ${Date.now()}-${Math.random()}`;
-      const enhancedQuery = `${query}${realDataContext}
+      // Call the Groq assistant with enhanced context - pass real queryId if available
+      let latestQueryId = null;
+      
+      // Try to get the most recent query ID for context
+      try {
+        const { data: recentQueries } = await supabase
+          .from('research_queries')
+          .select('id')
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        if (recentQueries && recentQueries.length > 0) {
+          latestQueryId = recentQueries[0].id;
+        }
+      } catch (err) {
+        console.log('Could not fetch recent query ID:', err);
+      }
 
-Context: ${uniqueContext}
+      const enhancedQuery = `${query}${realDataContext}
 
 Please provide a helpful response that:
 1. Directly addresses the user's question with unique insights
@@ -208,7 +222,7 @@ Please provide a helpful response that:
 Make your response unique and specific to this query, avoiding generic replies.`;
 
         const { data: assistantData, error: assistantError } = await supabase.functions.invoke('groq-assistant', {
-          body: { message: enhancedQuery, queryId: null }
+          body: { message: enhancedQuery, queryId: latestQueryId }
         });
 
         if (assistantError) {
