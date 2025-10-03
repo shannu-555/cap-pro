@@ -57,3 +57,12 @@ verify_jwt = false
 
 [functions.twitter-agent]
 verify_jwt = false
+
+[functions.groq-assistant]
+verify_jwt = false
+
+[functions.gemini-assistant]
+verify_jwt = false
+
+[functions.rag-processor]
+verify_jwt = false

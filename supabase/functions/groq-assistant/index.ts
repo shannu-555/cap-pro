@@ -30,16 +30,18 @@ serve(async (req) => {
 
     let contextData = '';
     let agentSummary = '';
+    let ragChunks = '';
 
     // If queryId provided, fetch relevant agent data for context
     if (queryId) {
-      console.log('Fetching agent data for context...');
+      console.log('Fetching agent data and RAG chunks for context...');
       
-      const [sentimentRes, competitorRes, trendRes, reportRes] = await Promise.allSettled([
+      const [sentimentRes, competitorRes, trendRes, reportRes, chunksRes] = await Promise.allSettled([
         supabase.from('sentiment_analysis').select('*').eq('query_id', queryId).limit(5),
         supabase.from('competitor_data').select('*').eq('query_id', queryId).limit(5),
         supabase.from('trend_data').select('*').eq('query_id', queryId).limit(5),
-        supabase.from('research_reports').select('*').eq('query_id', queryId).single()
+        supabase.from('research_reports').select('*').eq('query_id', queryId).single(),
+        supabase.from('research_chunks').select('content').eq('query_id', queryId).limit(5)
       ]);
 
       // Build context from agent data
@@ -47,6 +49,12 @@ serve(async (req) => {
       const competitorData = competitorRes.status === 'fulfilled' && competitorRes.value.data || [];
       const trendData = trendRes.status === 'fulfilled' && trendRes.value.data || [];
       const reportData = reportRes.status === 'fulfilled' && reportRes.value.data || null;
+      const chunksData = chunksRes.status === 'fulfilled' && chunksRes.value.data || [];
+
+      // Add RAG chunks if available
+      if (chunksData.length > 0) {
+        ragChunks = `\n\nRETRIEVED KNOWLEDGE:\n${chunksData.map(c => c.content).join('\n\n')}\n`;
+      }
 
       // Create comprehensive context
       if (sentimentData.length > 0) {
@@ -81,7 +89,7 @@ serve(async (req) => {
       agentSummary = `Based on AI agent analysis: ${sentimentData.length} sentiment points, ${competitorData.length} competitors tracked, ${trendData.length} trend indicators processed.`;
     }
 
-    // Construct the prompt for Groq
+    // Construct the prompt for Groq with RAG context
     const systemPrompt = `You are an expert AI Market Research Assistant with access to real-time market intelligence. Your role is to provide actionable, data-driven insights for business decision-making.
 
 CAPABILITIES:
@@ -92,6 +100,8 @@ CAPABILITIES:
 
 CONTEXT DATA FROM AI AGENTS:${contextData}
 
+${ragChunks}
+
 ${agentSummary}
 
 INSTRUCTIONS:
@@ -100,11 +110,12 @@ INSTRUCTIONS:
 - Be concise but comprehensive in your analysis
 - Focus on business implications and opportunities
 - If no specific data is available, provide general market research guidance
-- Maintain a professional, analytical tone`;
+- Maintain a professional, analytical tone
+- Use the retrieved knowledge and agent data to provide accurate, contextual responses`;
 
     const userPrompt = `User Question: ${message}
 
-Please provide a detailed, data-driven response based on the available market intelligence.`;
+Please provide a detailed, data-driven response based on the available market intelligence and retrieved context.`;
 
     console.log('Calling Groq API...');
 
@@ -146,11 +157,13 @@ Please provide a detailed, data-driven response based on the available market in
     return new Response(JSON.stringify({ 
       response: assistantResponse,
       hasContext: !!contextData,
+      hasRAGChunks: !!ragChunks,
       agentDataUsed: {
         sentiment: sentimentData?.length || 0,
         competitors: competitorData?.length || 0,
         trends: trendData?.length || 0,
-        insights: reportData ? 1 : 0
+        insights: reportData ? 1 : 0,
+        rag_chunks: chunksData?.length || 0
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

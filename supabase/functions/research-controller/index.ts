@@ -76,6 +76,17 @@ serve(async (req) => {
       });
       console.log('Insight agent result:', insightResult);
 
+      // Process RAG chunks after agents complete
+      try {
+        console.log('Processing RAG chunks for vector search...');
+        const ragResult = await supabase.functions.invoke('rag-processor', {
+          body: { queryId, action: 'process' }
+        });
+        console.log('RAG processing result:', ragResult);
+      } catch (ragError) {
+        console.error('RAG processing failed (optional):', ragError);
+      }
+
       // Auto-generate PDF report after insights are ready
       try {
         console.log('Auto-generating PDF report...');
