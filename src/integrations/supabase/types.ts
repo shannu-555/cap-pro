@@ -135,6 +135,7 @@ export type Database = {
           input_message: string
           language: string | null
           platform: string
+          sender_phone: string | null
           sentiment_detected: string | null
           updated_at: string
           user_id: string | null
@@ -147,6 +148,7 @@ export type Database = {
           input_message: string
           language?: string | null
           platform: string
+          sender_phone?: string | null
           sentiment_detected?: string | null
           updated_at?: string
           user_id?: string | null
@@ -159,6 +161,7 @@ export type Database = {
           input_message?: string
           language?: string | null
           platform?: string
+          sender_phone?: string | null
           sentiment_detected?: string | null
           updated_at?: string
           user_id?: string | null
@@ -411,6 +414,18 @@ export type Database = {
       l2_normalize: {
         Args: { "": string } | { "": unknown } | { "": unknown }
         Returns: string
+      }
+      search_research_chunks: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          query_embedding: string
+        }
+        Returns: {
+          content: string
+          id: string
+          similarity: number
+        }[]
       }
       sparsevec_out: {
         Args: { "": unknown }
